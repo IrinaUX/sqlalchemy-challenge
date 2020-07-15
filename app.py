@@ -69,17 +69,28 @@ def stations():
     session = Session(engine)
     """ Return the list of stations with the precipitation data""" 
     # ['id', 'station', 'name', 'latitude', 'longitude', 'elevation']
-    results = session.query(Measurement.station, Measurement.id).all() 
+    # results = session.query(Measurement.station, Measurement.id).all() 
+    results = session.query(Station.name).all() 
     
     # Create a list of stations
     stations_list = []
-    for station, id in results: 
-        if station not in stations_list:
+    for name in results: 
+        if name not in stations_list:
             station_dict = {}
-            station_dict["station"]   = station
-            station_dict["id"]        = id
+            station_dict["name"]   = name
+            # station_dict["id"]        = id
             stations_list.append(station_dict)
     return jsonify(stations_list)
+
+    # # Create a list of stations
+    # stations_list = []
+    # for station, id in results: 
+    #     if station not in stations_list:
+    #         station_dict = {}
+    #         station_dict["station"]   = station
+    #         station_dict["id"]        = id
+    #         stations_list.append(station_dict)
+    # return jsonify(stations_list)
 
 
 @app.route("/api/v1.0/tobs")
