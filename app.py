@@ -7,19 +7,19 @@ app = Flask(__name__)
 
 # 3. Define what to do when a user hits the index route
 @app.route("/")
-def precipitation():
+def home():
     print("Server received request for 'Home' page...")
     return "Welcome to my 'Home' page!. This is Irina"
 
 
-# 3. Define what to do when a user hits the index route
+# 4. Define what to do when a user hits the index route
 @app.route("/api/v1.0/precipitation")
 def precipitation():
-    print("Server received request for 'Home' page...")
+    print("Server received request for 'Precipitation' page...")
     return "Welcome to my 'Precipitation' page!. This is Irina"
 
 
-# 4. Define what to do when a user hits the /about route
+# 5. Define what to do when a user hits the /about route
 @app.route("/api/v1.0/stations")
 def stations():
     print("Server received request for 'About' page...")
