@@ -79,46 +79,69 @@ def tobs():
     print("Server received request for 'Contact' page...")
     session = Session(engine)
 
-    # # Save latest date into a variable and in string type
-    # latest_date = session.query(Measurement.date).order_by(Measurement.date.desc()).first()[0]
+    # Save latest date into a variable and in string type
+    latest_date = session.query(Measurement.date).order_by(Measurement.date.desc()).first()[0]
+    # return latest_date
+    
+    # Find the latest year
+    date_time_obj = dt.datetime.strptime(latest_date, '%Y-%m-%d') 
 
-    # # Find the latest year
-    # date_time_obj = dt.datetime.strptime(latest_date, '%Y-%m-%d') # %H:%M:%S.%f
+    # Last year from latest date's year
+    one_year_back = date_time_obj.year - 1
+    # return str(one_year_back)
 
-    # # Last year from latest date's year
-    # one_year_back = date_time_obj.year - 1
-
-    # # Reconstruct the date 12 months back from the latest available date
-    # latest_twelve_months_date = dt.date(one_year_back, date_time_obj.month, date_time_obj.day)
+    # Reconstruct the date 12 months back from the latest available date
+    latest_twelve_months_date = dt.date(one_year_back, date_time_obj.month, date_time_obj.day)
+    # return str(latest_twelve_months_date)
 
     # Save the counts of the observations 
     results = session.query(Measurement.station, func.count(Measurement.tobs)).group_by(Measurement.station).all()
     
-    # # Get the maximum observations value
+    max_count = 0
+    for i in range(len(results)):
+        print(results[i][1])
+        if results[i][1] > max_count:
+            max_count = results[i][1]
+    return str(max_count)
+
+    # # Create second query for the latest 12 months
+    # results_12 = session.query(Measurement.date, Measurement.station, Measurement.tobs).\
+    #     order_by(Measurement.date.desc()).\
+    #     filter(Measurement.date <= latest_date).\
+    #     filter(Measurement.date > latest_twelve_months_date).\
+    #     filter(Measurement.tobs != 'None').\
+    #     all()
+
+    session.close()
+
+    # # Loop through the query results_12 to get the precipitation data
+    # tobs_count_list = []
+    # max_count = 0
+    # for count in range(len(results_12)):
+    #     tobs_count_dict = {}
+    #     tobs_count_dict["Counts on observations"] = count
+    #     tobs_count_list.append(tobs_count_dict)
+    #     if int(results[count][0]) > max_count:
+    #         max_count = results_12[count][1]
+    # return jsonify(max_count)
+
+    # # Loop through the query results to get the precipitation data
+    # tobs_count_list = []
+    # max_count = 0
+    # for count in range(len(results)):
+    #     tobs_count_dict = {}
+    #     tobs_count_dict["Counts on observations"] = count
+    #     tobs_count_list.append(tobs_count_dict)
+    #     if results[count][1] > max_count:
+    #         max_count = results[count][1]
+    # return jsonify(max_count)
+
     # max_count = 0
     # for i in range(len(results)):
     #     print(results[i][1])
     #     if results[i][1] > max_count:
     #         max_count = results[i][1]
-    #         max_count
     # return max_count
-    # return ("Maximum count value is {max_count}.")
-
-
-    # # Save results of the query
-    # results = session.query(Measurement.date, Measurement.tobs).\
-    #     order_by(Measurement.date.desc()).\
-    #     filter(Measurement.date <= latest_date).\
-    #     filter(Measurement.date > latest_twelve_months_date).\
-    #     filter(Measurement.prcp != 'None').\
-    #     all()
-
-
-    # Loop through the query results to get the precipitation data
-    tobs_count_list = []
-    for row in results:
-        tobs_count_list.append(row)
-    return jsonify(tobs_count_list)
 
 if __name__ == "__main__":
     app.run(debug=True)
