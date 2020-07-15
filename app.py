@@ -33,24 +33,17 @@ app = Flask(__name__)
 @app.route("/")
 def home():
     print("Server received request for 'Home' page...")
-    return "Welcome to my 'Home' page!. This is Irina"
+    return "Welcome to the Weather Analysis website!"
 
 
 # 4. Define what to do when a user hits the index route
 @app.route("/api/v1.0/precipitation")
 def precipitation():
     print("Server received request for 'Precipitation' page...")
-    # Convert the query results to a dictionary using 'Date' as the key and 'prcp' as the value 
-    # return "Welcome to my 'Precipitation' page!. This is Irina"
     session = Session(engine)
-    """ Return the list of stations with the precipitation data""" 
+    # Return the list of stations with the precipitation data
     results = session.query(Measurement.station, Measurement.prcp).all()
-    print(len(results))
     session.close()
-
-    # # Convert list of tuples into normal list
-    # prcp_data_list = list(np.ravel(results))
-    # return jsonify(prcp_data_list)
 
     # Create a dictionary from the row data and append to a list
     prcp_list = []
@@ -67,37 +60,65 @@ def stations():
     print("Server received request for 'About' page...")
     #return "Welcome to my 'Stations' page!"
     session = Session(engine)
-    """ Return the list of stations with the precipitation data""" 
-    # ['id', 'station', 'name', 'latitude', 'longitude', 'elevation']
-    # results = session.query(Measurement.station, Measurement.id).all() 
+
+    # Return the list of stations with the stations data
     results = session.query(Station.name).all() 
-    
+    session.close()
+
     # Create a list of stations
     stations_list = []
     for name in results: 
         if name not in stations_list:
             station_dict = {}
             station_dict["name"]   = name
-            # station_dict["id"]        = id
             stations_list.append(station_dict)
     return jsonify(stations_list)
-
-    # # Create a list of stations
-    # stations_list = []
-    # for station, id in results: 
-    #     if station not in stations_list:
-    #         station_dict = {}
-    #         station_dict["station"]   = station
-    #         station_dict["id"]        = id
-    #         stations_list.append(station_dict)
-    # return jsonify(stations_list)
-
 
 @app.route("/api/v1.0/tobs")
 def tobs():
     print("Server received request for 'Contact' page...")
-    return "Welcome to my 'TOBS' page!"
+    session = Session(engine)
 
+    # # Save latest date into a variable and in string type
+    # latest_date = session.query(Measurement.date).order_by(Measurement.date.desc()).first()[0]
+
+    # # Find the latest year
+    # date_time_obj = dt.datetime.strptime(latest_date, '%Y-%m-%d') # %H:%M:%S.%f
+
+    # # Last year from latest date's year
+    # one_year_back = date_time_obj.year - 1
+
+    # # Reconstruct the date 12 months back from the latest available date
+    # latest_twelve_months_date = dt.date(one_year_back, date_time_obj.month, date_time_obj.day)
+
+    # Save the counts of the observations 
+    results = session.query(Measurement.station, func.count(Measurement.tobs)).group_by(Measurement.station).all()
+    
+    # # Get the maximum observations value
+    # max_count = 0
+    # for i in range(len(results)):
+    #     print(results[i][1])
+    #     if results[i][1] > max_count:
+    #         max_count = results[i][1]
+    #         max_count
+    # return max_count
+    # return ("Maximum count value is {max_count}.")
+
+
+    # # Save results of the query
+    # results = session.query(Measurement.date, Measurement.tobs).\
+    #     order_by(Measurement.date.desc()).\
+    #     filter(Measurement.date <= latest_date).\
+    #     filter(Measurement.date > latest_twelve_months_date).\
+    #     filter(Measurement.prcp != 'None').\
+    #     all()
+
+
+    # Loop through the query results to get the precipitation data
+    tobs_count_list = []
+    for row in results:
+        tobs_count_list.append(row)
+    return jsonify(tobs_count_list)
 
 if __name__ == "__main__":
     app.run(debug=True)
