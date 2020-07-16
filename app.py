@@ -65,10 +65,17 @@ def stations():
     session = Session(engine)
 
     # Return the list of stations with the stations data
-    results = session.query(Station.name).all() 
+    results = session.query(Station.id, Station.name).all() 
     session.close()
 
-    return jsonify(results)
+    sta_list = []
+    for id, station in results:
+        sta_dict = {}
+        sta_dict["ID"] = id
+        sta_dict["Station"] = station
+        sta_list.append(sta_dict)
+    return jsonify(sta_list)
+    # print(results)
 
 @app.route("/api/v1.0/tobs")
 def tobs():
