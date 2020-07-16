@@ -42,7 +42,7 @@ def home():
 # 4. Define what to do when a user hits the index route
 @app.route("/api/v1.0/precipitation")
 def precipitation():
-    print("Server received request for 'Precipitation' page...")
+    print("Server received request for 'Precipitation' page.")
     session = Session(engine)
     # Return the list of stations with the precipitation data
     results = session.query(Measurement.date, Measurement.prcp).all()
@@ -68,14 +68,7 @@ def stations():
     results = session.query(Station.name).all() 
     session.close()
 
-    # Create a list of stations
-    stations_list = []
-    for name in results: 
-        if name not in stations_list:
-            station_dict = {}
-            station_dict["name"]   = name
-            stations_list.append(station_dict)
-    return jsonify(stations_list)
+    return jsonify(results)
 
 @app.route("/api/v1.0/tobs")
 def tobs():
