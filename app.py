@@ -32,9 +32,12 @@ app = Flask(__name__)
 # 3. Define what to do when a user hits the index route
 @app.route("/")
 def home():
-    print("Server received request for 'Home' page...")
-    return "Welcome to the Weather Analysis website!"
-
+    return (
+        f"<p>Hawaii weather!</p>"
+        f"/api/v1.0/precipitation<br/>Returns a JSON list of percipitation data from Measurement<br/><br/>"
+        f"/api/v1.0/stations<br/>Returns a JSON list of the weather stations<br/><br/>"
+        f"/api/v1.0/tobs<br/>Returns a JSON list of the Temperature Observations (tobs) for each station for the dates between 8/23/16 and 8/23/17<br/><br/>"
+    )
 
 # 4. Define what to do when a user hits the index route
 @app.route("/api/v1.0/precipitation")
@@ -42,15 +45,15 @@ def precipitation():
     print("Server received request for 'Precipitation' page...")
     session = Session(engine)
     # Return the list of stations with the precipitation data
-    results = session.query(Measurement.station, Measurement.prcp).all()
+    results = session.query(Measurement.date, Measurement.prcp).all()
     session.close()
 
     # Create a dictionary from the row data and append to a list
     prcp_list = []
-    for station, prcp in results:
+    for date, prcp in results:
         prcp_dict = {}
-        prcp_dict["station"] = station
-        prcp_dict["precipitation"] = prcp
+        prcp_dict["Date"] = date
+        prcp_dict["Precipitation"] = prcp
         prcp_list.append(prcp_dict)
     return jsonify(prcp_list)
 
