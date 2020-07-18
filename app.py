@@ -44,7 +44,8 @@ def home():
 # 4. Define what to do when a user hits the index route
 @app.route("/api/v1.0/precipitation")
 def precipitation():
-    print("Server received request for 'Precipitation' page.")
+    """ Returns the precipitation data
+    """
     session = Session(engine)
     # Return the list of stations with the precipitation data
     results = session.query(Measurement.date, Measurement.prcp).all()
@@ -62,13 +63,9 @@ def precipitation():
 # 5. Define what to do when a user hits the /about route
 @app.route("/api/v1.0/stations")
 def stations():
-    print("Server received request for 'Station' page...")
-    #return "Welcome to my 'Stations' page!"
+    """ Returns the list of stations
+    """
     session = Session(engine)
-
-    # # Return the list of stations with the stations data
-    # results = session.query(Station.id, Station.name).all() 
-    # session.close()
 
     # Return the list of stations with the stations data
     results2 = session.query(Station.name).all() 
@@ -78,7 +75,9 @@ def stations():
     
 @app.route("/api/v1.0/tobs")
 def tobs():
-    print("Server received request for 'Observed Temperature page' page...")
+    """ Returns the dates and the temperatures 
+        observed in the latest 12 months
+    """
     session = Session(engine)
 
     # Save latest date into a variable and in string type
@@ -119,30 +118,6 @@ def tobs():
     return jsonify(dates_tobs_list)
  
 
-
-# @app.route("/api/v1.0/<start>")
-# def start(): # =None
-#     session = Session(engine)
-    
-#     # Save latest date into a variable and in string type
-#     latest_date = session.query(Measurement.date).order_by(Measurement.date.desc()).first()[0]
-#     date_time_obj = dt.datetime.strptime(latest_date, '%Y-%m-%d') 
-#     one_year_back = date_time_obj.year - 1
-#     latest_twelve_months_date = dt.date(one_year_back, date_time_obj.month, date_time_obj.day)
-    
-#     # Save previously defined start date
-#     start = latest_twelve_months_date
-    
-#     # Return a JSON list of TMIN, TMAX, TAVG for the dates greater than or equal to the date provided
-#     from_start = session.query(Measurement.date, \
-#         func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).\
-#         filter(Measurement.date >= start).group_by(Measurement.date).\
-#         all()
-#     session.close()
-#     from_start_list=list(from_start)
-#     return jsonify(from_start_list)
-#############
-
 @app.route("/api/v1.0/<start>")
 def temperatures_start(start):
     """ Given the start only, calculate TMIN, TAVG, and TMAX for all dates greater than 
@@ -170,8 +145,8 @@ def temperatures_start_end(start, end):
     session = Session(engine)
     
     results = session.query(func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).\
-                filter(Measurement.date >= start).\
-                filter(Measurement.date <= end).all()
+        filter(Measurement.date >= start).\
+        filter(Measurement.date <= end).all()
     
     # Convert list of tuples into normal list
     temperatures_start_end = list(np.ravel(results))
@@ -180,7 +155,7 @@ def temperatures_start_end(start, end):
 
     session.close()
 
-    
+
 if __name__ == "__main__":
     app.run(debug=True)
 
