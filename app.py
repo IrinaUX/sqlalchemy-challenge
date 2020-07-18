@@ -37,8 +37,8 @@ def home():
         f"/api/v1.0/precipitation<br/>Returns a JSON list of percipitation data from Measurement<br/><br/>"
         f"/api/v1.0/stations<br/>Returns a JSON list of the weather stations<br/><br/>"
         f"/api/v1.0/tobs<br/>Returns a JSON list of the Temperature Observations (tobs) for each station for the dates between 8/23/16 and 8/23/17<br/><br/>"
-        f"/api/v1.0/start<br/>"
-        f"/api/v1.0/start/end<br/>"
+        f"/api/v1.0/<start><br/>"
+        f"/api/v1.0/<start>/end<br/>"
     )
 
 # 4. Define what to do when a user hits the index route
@@ -95,24 +95,14 @@ def tobs():
     # Reconstruct the date 12 months back from the latest available date
     latest_twelve_months_date = dt.date(one_year_back, date_time_obj.month, date_time_obj.day)
     
-    # # Save the counts of the observations 
-    # max_tobs_count_query = session.query(Measurement.station, func.count(Measurement.tobs)).group_by(Measurement.station).all()
-    
-    # # Save the count of observations from the query results
-    # max_count = 0
-    # for i in range(len(max_tobs_count_query)):
-    #     print(max_tobs_count_query[i][1])
-    #     if max_tobs_count_query[i][1] > max_count:
-    #         max_count = max_tobs_count_query[i][1]
-    # # return str(f"Maximum observations - {max_count}.")
+    # Query stations in descending order
     station = session.query(Measurement.station, func.count(Measurement.tobs)).\
         group_by(Measurement.station).\
         order_by(func.count(Measurement.station).desc()).all()
     
     # Save the station name with maximum observations into a variable
     maxtobs_station = station[0][0]
-    # return jsonify(maxtobs_station)
-
+    
     # Query the dates and observations for the identified station 
     maxtobsstation_query = session.query(Measurement.date, Measurement.tobs).\
         filter(Measurement.station == maxtobs_station).\
@@ -128,10 +118,7 @@ def tobs():
         dates_tobs_list.append(dates_tobs_dict)
     return jsonify(dates_tobs_list)
  
-    session.close()
 
-if __name__ == "__main__":
-    app.run(debug=True)
 
 # @app.route("/api/v1.0/<start>")
 # def start(): # =None
@@ -154,25 +141,24 @@ if __name__ == "__main__":
 #     session.close()
 #     from_start_list=list(from_start)
 #     return jsonify(from_start_list)
+#############
 
-
-@app.route("/api/v1.0/start")
-def start():
-    print("Server received request for 'Precipitation' page.")
+@app.route("/api/v1.0/<start>")
+def temperatures_start(start):
+    """ Given the start only, calculate TMIN, TAVG, and TMAX for all dates greater than 
+        and equal to the start date. 
+    """
     session = Session(engine)
-    # Return the list of stations with the precipitation data
-    results = session.query(Measurement.date, Measurement.prcp).all()
+    
+    results = session.query(func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).\
+                filter(Measurement.date >= start).all()
+    
+    # Convert list of tuples into normal list
+    temperatures_start = list(np.ravel(results))
+
+    return jsonify(temperatures_start)
+
     session.close()
-
-    # Create a dictionary from the row data and append to a list
-    prcp_list = []
-    for date, prcp in results:
-        prcp_dict = {}
-        prcp_dict["Date"] = date
-        prcp_dict["Precipitation"] = prcp
-        prcp_list.append(prcp_dict)
-    return jsonify(prcp_list)
-
 
 if __name__ == "__main__":
     app.run(debug=True)
