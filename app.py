@@ -160,6 +160,27 @@ def temperatures_start(start):
 
     session.close()
 
+
+@app.route("/api/v1.0/<start>/<end>")
+def temperatures_start_end(start, end):
+    """ When given the start and the end date, 
+        calculate the TMIN, TAVG, and TMAX for dates between the start and end date inclusive.
+    """
+
+    session = Session(engine)
+    
+    results = session.query(func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).\
+                filter(Measurement.date >= start).\
+                filter(Measurement.date <= end).all()
+    
+    # Convert list of tuples into normal list
+    temperatures_start_end = list(np.ravel(results))
+
+    return jsonify(temperatures_start_end)
+
+    session.close()
+
+    
 if __name__ == "__main__":
     app.run(debug=True)
 
