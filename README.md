@@ -63,8 +63,10 @@ The details of the Flask Applications are described below.
   * Return a JSON list of the minimum temperature, the average temperature, and the max temperature for a given start or start-end range.
 
   * When given the start only, calculate `TMIN`, `TAVG`, and `TMAX` for all dates greater than and equal to the start date.
+
     ![start-date-api](Images/2b_StartDate_api.png)
 
   * When given the start and the end date, calculate the `TMIN`, `TAVG`, and `TMAX` for dates between the start and end date inclusive.
+  
     ![start-end-date-api](Images/4b_Start-End-Date_api.png)
 
